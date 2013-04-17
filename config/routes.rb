@@ -1,4 +1,10 @@
 Backload::Application.routes.draw do
+  resources :hold_templates
+
+
+  resources :sailings
+
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

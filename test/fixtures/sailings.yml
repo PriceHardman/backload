@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  vessel: MyText
+  voyage: 1
+  direction: MyText
+  sailing_date: 2013-04-16
+
+two:
+  vessel: MyText
+  voyage: 1
+  direction: MyText
+  sailing_date: 2013-04-16
