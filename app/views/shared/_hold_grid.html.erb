@@ -1,12 +1,12 @@
-<div id=<%= "grid_container_#{params[:action]}"%>>
-  <table id=<%= "grid_#{params[:action]}"%>>
+<div id="grid_container">
+  <table id="grid" data-action=<%= params[:action] %>>
     <% for i in 1..model[:row_count] %>
         <tr>
           <% for j in 1..model[:column_count] %>
-            <td></td>
+            <td data-selectable="false"></td>
           <% end %>
         </tr>
     <% end %>
   </table>
-  <%= image_tag "hold_backgrounds/#{model[:vessel]}/#{model[:vessel]}_#{model[:hold].gsub(/\s+/, "")}_#{model[:row_count]}x#{model[:column_count]}.png", id: "grid_background_#{params[:action]}" %>
+  <%= image_tag "hold_backgrounds/#{model[:vessel]}/#{model[:vessel]}_#{model[:hold].gsub(/\s+/, "")}_#{model[:row_count]}x#{model[:column_count]}.png", id: "grid_background" %>
 </div>

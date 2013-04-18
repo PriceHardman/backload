@@ -1,6 +1,7 @@
 class HoldTemplatesController < ApplicationController
   # GET /hold_templates
   # GET /hold_templates.json
+
   def index
     @hold_templates = HoldTemplate.all
 
@@ -39,6 +40,11 @@ class HoldTemplatesController < ApplicationController
     gon.hold_template = @hold_template
   end
 
+  def edit_selectable_cells
+    @hold_template = HoldTemplate.find(params[:id])
+    gon.hold_template = @hold_template
+  end
+
   # POST /hold_templates
   # POST /hold_templates.json
   def create
@@ -64,11 +70,19 @@ class HoldTemplatesController < ApplicationController
       if @hold_template.update_attributes(params[:hold_template])
         format.html { redirect_to @hold_template, notice: 'Hold template was successfully updated.' }
         format.json { head :no_content }
+        format.js
       else
         format.html { render action: "edit" }
         format.json { render json: @hold_template.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  def update_selectable_cells
+    @hold_template = HoldTemplate.find(params[:id])
+
+    @hold_template.update_attribute(:selectable_cells, params[:hold_template][:selectable_cells].split(","))
+    redirect_to @hold_template
   end
 
   # DELETE /hold_templates/1

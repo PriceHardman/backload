@@ -6,44 +6,22 @@
 
 // ***********************  IMPORTANT: READ ME!!!!!!!    ************************************
 
-//We want the CSS to behave differently depending on whether we're showing a record or editing it,
-//so in the _hold_grid.html.erb, the id's of elements have the controller action dynamically appended to them,
-//and the appropriate behavior is set here, as well as in hold_templates.js
+//We want the CSS to behave differently depending on whether we're showing a template record or editing it's selectable cells,
+//so in the _hold_grid.html.erb, the table has a data-action tag containing the action associated with the view.
+//This will allow us to
 
-
-
-#grid_container_show {
-  width: "100%";
+#grid_container {
   height: "100%";
-  position: absolute;
-}
-
-#grid_show {
-  position: absolute;
-}
-
-#grid_show td {
-  text-align: center;
-  vertical-align: middle;
-
-}
-
-// ###############################################################################
-
-#grid_container_edit {
   width: "100%";
-  height: "100%";
   position: absolute;
-}
 
-#grid_edit {
-  position: absolute;
-}
+  image {
+    position: absolute;
+  }
 
-#grid_edit td {
-  text-align: center;
-  vertical-align: middle;
-
+  table {
+    position:  absolute;
+  }
 }
 
 .hover {
@@ -52,8 +30,4 @@
 
 .selected {
   background-color: rgba(0,255,0,0.5); //translucent green if selected
-}
-
-.unselected {
-  background-color: none; //totally transparent if unselected
 }

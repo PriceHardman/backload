@@ -1,5 +1,11 @@
 Backload::Application.routes.draw do
-  resources :hold_templates
+
+  resources :hold_templates do
+    member do
+      get 'edit_selectable_cells'
+      put 'update_selectable_cells'
+    end
+  end
 
 
   resources :sailings
