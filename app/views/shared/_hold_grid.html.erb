@@ -1,9 +1,23 @@
 <div id="grid_container">
-  <table id="grid" data-action=<%= params[:action] %>>
+  <table id="grid" data-action=<%= params[:action] %> >
+
+    <%#
+       In assets/images/hold_backgrounds are diagrams of each cargo hold, with grid squares representing pallet spaces
+       This partial takes the vessel and hold as arguments and renders an HTML grid overlaid on top of the
+       appropriate image. The sizes of the cells match up with the grid squares in the image.
+
+       This partial is used for rendering any graphical representation of the cargo holds, whether it be for
+       displaying templates, creating vessel load plans, or viewing historical load plans.
+
+       Various HTML5 data attributes are created by this partial, which are used in various ways by this application.
+       %>
+
+    <% rows = ("A".."AZ").to_a  #for assigning rows a letter%>
+
     <% for i in 1..model[:row_count] %>
-        <tr>
+        <%= tag "tr", {:data => {:row => rows[i-1]} } %>
           <% for j in 1..model[:column_count] %>
-            <td data-selectable="false"></td>
+            <%= tag "td", {:data => {:row => rows[i-1], :column => j, :selectable => false}} %></td>
           <% end %>
         </tr>
     <% end %>

@@ -3,13 +3,11 @@
 <%= link_to 'Edit Hold Information', edit_hold_template_path(@hold_template) %><br/>
 <%= link_to 'Back To List of Vessel Templates', hold_templates_path %><br/>
 
-<%= form_for @hold_template, :url => {:action => "update_selectable_cells"}, :html => {:id => "submit_selectable_cells"} do |f| %>
-    <%= f.text_field :vessel , :class => "hidden_input_field"%><br />
-    <%= f.text_field :hold, :class => "hidden_input_field"  %><br />
-    <%= f.text_field :row_count, :class => "hidden_input_field" %><br />
-    <%= f.text_field :column_count, :class => "hidden_input_field" %><br />
-    <%= f.text_field :selectable_cells, :array => true, :class => "hidden_input_field", :id => "selectable_cells_text_field" %>
-    <%= f.submit "Update Selectable Cells"%>
+<%= form_for @hold_template,
+             :url => {:action => 'update_selectable_cells'},
+             :html => {:id => 'update_selectable_cells_form', :'data-type' => 'json'} do |f| %>
+    <%= hidden_field_tag "selectable_cells", nil, :id => "update_selectable_cells_field" %>
+    <%= f.submit "Update Selectable Cells" %>
 <% end %>
 
 <%= render "shared/hold_grid", :model => @hold_template %>

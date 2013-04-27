@@ -81,7 +81,13 @@ class HoldTemplatesController < ApplicationController
   def update_selectable_cells
     @hold_template = HoldTemplate.find(params[:id])
 
-    @hold_template.update_attribute(:selectable_cells, params[:hold_template][:selectable_cells].split(","))
+    @changed_cells = JSON.parse(params[:selectable_cells])
+    @changed_cells.each do |key,value|
+      cell = @hold_template.selectable_cells.where(name: key)[0]
+      cell.update_attributes(name: value["name"], selectable: value["selectable"])
+      cell.save
+    end
+
     redirect_to @hold_template
   end
 
