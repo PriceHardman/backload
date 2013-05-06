@@ -1,0 +1,16 @@
+<h1><%= "Coastal "+@vessel.name %></h1>
+
+<%= link_to "Add hold", new_admin_vessel_hold_path(@vessel) %><br/>
+
+<% if @vessel.holds %>
+    <ul>
+      <% @vessel.holds.each do |hold| %>
+          <%= link_to hold.name, admin_vessel_hold_path(@vessel,hold) %><br/>
+      <% end %>
+    </ul>
+
+<% end %>
+
+
+
+<%= link_to "Back to Vessel List", admin_vessels_path %><br/>

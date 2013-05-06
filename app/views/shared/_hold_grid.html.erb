@@ -14,13 +14,13 @@
 
     <% rows = ("A".."AZ").to_a  #for assigning rows a letter%>
 
-    <% for i in 1..model[:row_count] %>
+    <% for i in 1..hold[:row_count] %>
         <%= tag "tr", {:data => {:row => rows[i-1]} } %>
-          <% for j in 1..model[:column_count] %>
+          <% for j in 1..hold[:column_count] %>
             <%= tag "td", {:data => {:row => rows[i-1], :column => j, :selectable => false}} %></td>
           <% end %>
         </tr>
     <% end %>
   </table>
-  <%= image_tag "hold_backgrounds/#{model[:vessel]}/#{model[:vessel]}_#{model[:hold].gsub(/\s+/, "")}_#{model[:row_count]}x#{model[:column_count]}.png", id: "grid_background" %>
+  <%= image_tag "hold_backgrounds/#{vessel[:name]}/#{vessel[:name]}_#{hold[:name].gsub(/\s+/, "")}_#{hold[:row_count]}x#{hold[:column_count]}.png", id: "grid_background" %>
 </div>

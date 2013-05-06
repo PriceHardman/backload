@@ -1,0 +1,8 @@
+<h1><%= "Coastal #{@vessel.name} #{@hold.name}" %></h1>
+
+<%= link_to "Edit Hold Information", edit_admin_vessel_hold_path(@vessel,@hold) %><br/>
+<%= link_to "Edit Selectable Cells", edit_selectable_cells_admin_vessel_hold_path(@vessel,@hold),
+            :remote => true,
+            :id => "edit_selectable_cells_link" %><br/>
+
+<%= render "shared/hold_grid", :hold => @hold, :vessel => @vessel %>

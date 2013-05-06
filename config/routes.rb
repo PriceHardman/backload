@@ -1,14 +1,20 @@
 Backload::Application.routes.draw do
 
-  resources :hold_templates do
-    member do
-      get 'edit_selectable_cells'
-      put 'update_selectable_cells'
+  root :to => "homepage#home"
+
+  namespace :admin do
+    resources :vessels do
+      resources :holds do
+        member do
+          get 'edit_selectable_cells'
+          put 'update_selectable_cells'
+        end
+      end
     end
   end
 
 
-  resources :sailings
+
 
 
   # The priority is based upon order of creation:

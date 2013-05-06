@@ -1,0 +1,12 @@
+<%= form_for [:admin, @vessel, @hold] do |f| %>
+    <%= f.label :name %>
+    <%= f.text_field :name %><br/>
+
+    <%= f.label :row_count %>
+    <%= f.text_field :row_count %><br/>
+
+    <%= f.label :column_count %>
+    <%= f.text_field :column_count %><br/>
+
+    <%= f.submit "Save Hold" %>
+<% end %>

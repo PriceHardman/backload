@@ -1,0 +1,4 @@
+<h1><%= "Updating Coastal #{@vessel.name} #{@hold.name} Information" %></h1>
+
+<%= render "form" %>
+<%= link_to "Back to Coastal #{@vessel.name} #{@hold.name}", admin_vessel_hold_path(@vessel,@hold) %>

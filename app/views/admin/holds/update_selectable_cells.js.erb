@@ -1,0 +1,13 @@
+$('#update_selectable_cells_form').remove();
+$('#edit_selectable_cells_link').show();
+$('#grid').attr('data-action','show');
+
+//Loop through the td's in the grid, setting their data-selectable attribute to true if that cell is marked as selectable in the database.
+$('#grid td').each( function(index,value) {
+    if(gon.hold.selectable_cells[index].selectable == "true"){
+        $(this).attr("data-selectable","true");
+        $(this).addClass("selected");
+    } else {
+        //nothing
+    }
+});

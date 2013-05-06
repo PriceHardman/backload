@@ -1,0 +1,13 @@
+<h1>Coastal Transportation Vessels</h1>
+
+<%= link_to "Add Vessel", new_admin_vessel_path %>
+
+<ul>
+  <% @vessels.each do |vessel| %>
+    <li>
+      <%= "Coastal "+vessel.name %> |
+      <%= link_to "Show", admin_vessel_path(vessel) %> |
+      <%= link_to "Edit", edit_admin_vessel_path(vessel) %> |
+      <%= link_to 'Delete', admin_vessel_path(vessel), method: :delete, data: { confirm: 'Are you sure?' } %></li>
+  <% end %>
+</ul>

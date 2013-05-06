@@ -1,0 +1,7 @@
+<%= form_for [:admin,@vessel,@hold],
+             :url => {:action => 'update_selectable_cells'},
+             :html => {:id => 'update_selectable_cells_form'},
+             :remote => true do |f| %>
+    <%= hidden_field_tag "selectable_cells", nil, :id => "update_selectable_cells_field" %>
+    <%= f.submit "Update Selectable Cells" %>
+<% end %>

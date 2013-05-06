@@ -1,0 +1,60 @@
+//Change the data-attribute "action" from "show" to "edit_selectable_cells".
+//
+$('#grid').attr('data-action','edit_selectable_cells');
+$('#edit_selectable_cells_link').hide(); //hide the link that was just clicked.
+//and replace it with the
+$('#edit_selectable_cells_link').after('<%= j render "selectable_cells" %>');
+
+
+
+//##############################################################################################
+//##############################################################################################
+//##############################################################################################
+
+
+// Loop through the table cells
+// and record the current state of their 'selectable' data tag.
+
+// The purpose of this is that upon updating the selectable cells, each cell will have its
+// before and after states compared and only those that have changed will be submitted to the server
+// thereby saving bandwidth and increasing speed.
+
+var gridOnLoad = [];
+
+$('#grid[data-action="edit_selectable_cells"] td').each(function(index,value){
+    gridOnLoad.push( $(this).attr('data-selectable') );
+})
+
+$('#grid[data-action="edit_selectable_cells"] td').hover(function() {
+    $(this).toggleClass("hover");
+});
+
+$('#grid[data-action="edit_selectable_cells"] td').click(function() {
+    $(this).attr('data-selectable',$(this).attr('data-selectable')=='true' ? 'false' : 'true' );
+    $(this).toggleClass('selected');
+});
+
+
+//Gather up the cells that were changed by the user, make them into a JSON object,
+// stringify it, and put it in the hidden field of the form.
+$('#update_selectable_cells_form').submit(function() {
+
+    //Loop through the grid cells
+    var changedCells = {};
+    $('#grid[data-action="edit_selectable_cells"] td').each( function(index,value) {
+        if( $(this).attr('data-selectable') != gridOnLoad[index] ){
+
+            var thisCell = {}
+
+            thisCell.name = $(this).attr('data-row') + $(this).attr('data-column');
+            thisCell.selectable = $(this).attr('data-selectable');
+
+            changedCells[thisCell.name]=thisCell;
+        }
+    });
+
+    var $data = JSON.stringify(changedCells);
+
+    $('#update_selectable_cells_field').val($data);
+    return true
+});
