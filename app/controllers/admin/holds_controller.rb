@@ -40,7 +40,6 @@ class Admin::HoldsController < ApplicationController
     @vessel = Vessel.find(params[:vessel_id])
     @hold = @vessel.holds.find(params[:id])
     @changed_cells = JSON.parse(params[:selectable_cells]) #hash of selectable cells objects, referenced by name
-    #gon.watch.hold = @hold
 
     @changed_cells.each do |key,value|
       cell = @hold.selectable_cells.where(name: key)[0]
