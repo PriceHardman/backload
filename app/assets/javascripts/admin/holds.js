@@ -35,4 +35,8 @@ $(window).load(function() {     //ensure we don't do anything until the page loa
     $('#grid').css("width",$image.innerWidth());
     $('#grid td').css("height",$rowSize+"em");
     $('#grid td').css("width",$colSize+"em");
+
+
+
 });
+

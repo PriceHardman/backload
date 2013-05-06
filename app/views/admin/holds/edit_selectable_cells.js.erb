@@ -23,13 +23,14 @@ var gridOnLoad = [];
 
 $('#grid[data-action="edit_selectable_cells"] td').each(function(index,value){
     gridOnLoad.push( $(this).attr('data-selectable') );
-})
+});
 
-$('#grid[data-action="edit_selectable_cells"] td').hover(function() {
+
+$('#grid td').hover(function() {
     $(this).toggleClass("hover");
 });
 
-$('#grid[data-action="edit_selectable_cells"] td').click(function() {
+$('#grid td').click(function() {
     $(this).attr('data-selectable',$(this).attr('data-selectable')=='true' ? 'false' : 'true' );
     $(this).toggleClass('selected');
 });
