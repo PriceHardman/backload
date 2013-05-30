@@ -1,0 +1,14 @@
+    $('#new_voyage_link').hide().after('<%= j render("form") %>');
+
+    $('#voyage_sailing_date_string').datepicker();
+
+    $('#cancel_new_voyage').click(function() {
+        $('#new_voyage').hide();
+        $('#new_voyage_link').show();
+    });
+
+    $('#create_new_voyage').click(function() {
+        $('#cancel_new_voyage').attr('disabled',true); //disable the cancel button when submission is processing.
+        return true;
+    });
+

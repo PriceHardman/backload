@@ -1,0 +1,16 @@
+<h1>Voyages</h1>
+
+<%= link_to "Create new voyage",
+            new_voyage_path,
+            id: "new_voyage_link",
+            remote: true ,
+            data: {confirm: "Are you sure? Make sure the voyage is not already present on the list below."}  %>
+
+<% if @current_voyages %>
+    <h2>Current Voyages</h2>
+    <ul id="vessels_list">
+      <% @current_voyages.each do |voyage| %>
+          <%= render "voyage", :voyage => voyage %>
+      <% end %>
+    </ul>
+<% end %>

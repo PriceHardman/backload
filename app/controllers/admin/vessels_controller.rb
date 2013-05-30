@@ -1,7 +1,7 @@
 class Admin::VesselsController < ApplicationController
 
   def index
-    @vessels = Vessel.all
+    @vessels = Vessel.all.sort_by{ |vessel| vessel.name }
   end
 
   def show

@@ -1,0 +1,4 @@
+<li>
+  <%= link_to "Coastal #{voyage.vessel} #{voyage.voyage_number}", voyage_path(voyage) %>
+  <%= voyage.sailing_date.strftime(", Sailing On %B %d, %Y") %>
+</li>

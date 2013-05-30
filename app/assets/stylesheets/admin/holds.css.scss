@@ -9,29 +9,46 @@
 //We want the CSS to behave differently depending on whether we're showing a hold template or editing it's selectable cells,
 //so in the _hold_grid.html.erb, the table has a data-action tag containing the action associated with the view.
 //This will allow us to
-
-#grid_container {
-  height: "100%";
-  width: "100%";
-  position: absolute;
-
-  image {
+body[data-controller="holds"] {
+  #grid_container {
+    height: "100%";
+    width: "100%";
     position: absolute;
+    z-index: 0;
+
+    image {
+      position: absolute;
+    }
+
+    table {
+      position:  absolute;
+      margin: 0;
+      padding: 0;
+      border-spacing: 0;
+      border-collapse: collapse;
+      display: table;
+      table-layout: fixed;
+
+      td {
+        margin: 0;
+        padding: 0;
+        border-spacing: 0;
+
+      }
+    }
   }
 
-  table {
-    position:  absolute;
+  .hover {
+    background-color: rgba(255,255,0,0.4); //translucent yellow if hovered over
+  }
+
+  .selected.hover {
+    background-color: rgba(255,255,0,0.4); //translucent yellow if selected and hovered over.
+  }
+
+  .selected {
+    background-color: rgba(0,255,0,0.5); //translucent green if selected
   }
 }
 
-.hover {
-  background-color: rgba(255,255,0,0.4); //translucent yellow if hovered over
-}
 
-.selected.hover {
-  background-color: rgba(255,255,0,0.4); //translucent yellow if selected and hovered over.
-}
-
-.selected {
-  background-color: rgba(0,255,0,0.5); //translucent green if selected
-}

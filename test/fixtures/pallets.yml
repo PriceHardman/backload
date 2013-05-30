@@ -1,0 +1,9 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  destination_code: 1
+  pallet_number: 1
+
+two:
+  destination_code: 1
+  pallet_number: 1

@@ -2,6 +2,12 @@ Backload::Application.routes.draw do
 
   root :to => "homepage#home"
 
+  resources :voyages do
+    resources :cargo_holds do
+
+    end
+  end
+
   namespace :admin do
     resources :vessels do
       resources :holds do

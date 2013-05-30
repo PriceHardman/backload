@@ -1,10 +1,8 @@
 class Admin::HoldsController < ApplicationController
 
   def show
-    puts params.inspect
     @vessel = Vessel.find(params[:vessel_id])
     @hold = @vessel.holds.find(params[:id])
-    gon.watch.hold = @hold
   end
 
   def new
@@ -30,10 +28,16 @@ class Admin::HoldsController < ApplicationController
     redirect_to admin_vessel_hold_url(@vessel,@hold)
   end
 
+  def destroy
+    @vessel = Vessel.find(params[:vessel_id])
+    @hold = @vessel.holds.find(params[:id])
+    @hold.destroy
+    redirect_to admin_vessel_url(@vessel)
+  end
+
   def edit_selectable_cells
     @vessel = Vessel.find(params[:vessel_id])
     @hold = @vessel.holds.find(params[:id])
-
   end
 
   def update_selectable_cells
@@ -46,5 +50,7 @@ class Admin::HoldsController < ApplicationController
       cell.update_attributes(name: value["name"], selectable: value["selectable"])
       cell.save
     end
+
+    @hold = @vessel.holds.find(params[:id]) #get updated hold to pass to JS
   end
 end

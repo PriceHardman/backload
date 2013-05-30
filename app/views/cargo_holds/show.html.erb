@@ -1,0 +1,75 @@
+<h1><%= "Coastal #{@voyage.vessel} #{@voyage.voyage_number} #{@cargo_hold.name} "%></h1>
+
+<%= javascript_tag id: "hold_var" do %>
+    var $hold = <%= raw @hold_template.to_json %>;
+<% end %>
+
+<%= javascript_tag id: "pallet_squares_var" do %>
+    var $pallet_squares = <%= raw @cargo_hold.pallet_squares.to_json %>;
+<% end %>
+
+<div id="pallet_menu">
+    <div id="pallet_menu_bar">
+      <button id="pallet_menu_close_button">X</button>
+    </div>
+
+  <div id="pallet_view_div">
+    <h2>Pallets In This Space:</h2>
+    <div id="top_label">(Top of stack)</div>
+    <table id="pallet_view">
+    </table>
+    <div id="bottom_label">(Bottom of stack)</div>
+
+  </div>
+  <div id="pallet_menu_buttons">
+    <h2>Available Options:</h2>
+    <button id="add_button">Add</button>
+    <button id="move_button">Move</button>
+    <button id="delete_button">Delete</button>
+  </div>
+
+  <div id=pallet_menu_sub_menu>
+    <div id=pallet_sub_menu_main_div>
+      <div class="sub_menu_input_div">
+        <div class="label_div"><%= label_tag "Destination Code:"%></div>
+        <div class="input_div"><%= text_field_tag "destination_code" %><br/></div>
+      </div>
+
+      <div class="sub_menu_input_div">
+        <div class = "label_div"><%= label_tag "Pallet Number:"%></div>
+        <div class="input_div"><%= text_field_tag "pallet_number" %><br/></div>
+      </div>
+
+      <div id="inner_menu_buttons_div">
+        <div id= "inner_submit_button_div" class="button_div"><button id="inner_submit_button">Submit</button></div>
+        <div id="inner_cancel_button_div" class="button_div"><button id="inner_cancel_button">Cancel</button></div>
+      </div>
+    </div>
+    <div id="inner_menu_help_div">
+        <p>
+          Enter the destination code and pallet number for the given pallet as they appear on the pallet sticker, case-insensitive.
+          For example, Destination Code: 74A, Pallet Number: 1234.
+        </p>
+    </div>
+  </div>
+
+  <div id="pallet_menu_done_button_div">
+    <button id="pallet_menu_done_button">Done</button>
+  </div>
+</div>
+
+<div id="batch_menu">
+  <h2>Multi-Cell Actions</h2>
+ <button id="batch_add_button">Add</button>
+ <button id="batch_move_button">Move</button>
+ <button id="batch_delete_button">Delete</button>
+ <button id="batch_help_button">Help</button>
+</div>
+
+<div id="multi_button_div">
+  <input id="multi_button" value="Multi-Mode: OFF" type="button" />
+</div>
+
+<%= render "shared/hold_grid", :hold => @hold_template, :vessel => @vessel_template %>
+
+<div id="mask_layer"></div>

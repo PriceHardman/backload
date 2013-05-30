@@ -1,0 +1,12 @@
+<div id="header">
+  <h1><%= "Coastal #{@voyage.vessel} #{@voyage.voyage_number}"%></h1>
+  <h2><%= @voyage.sailing_date.strftime("Sailing On %A %B %d, %Y") %></h2>
+</div>
+
+<%= link_to "Back to Voyages List", voyages_path %><br/>
+<%= link_to "Edit Voyage", edit_voyage_path(@voyage) %><br/>
+
+<div id="holds">
+  <h2>Holds:</h2>
+  <%= render @cargo_holds %>
+</div>

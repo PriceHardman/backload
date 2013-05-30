@@ -1,0 +1,504 @@
+body[data-controller="cargo_holds"] {
+
+  #grid_container {
+    height: "100%";
+    width: "100%";
+    position: relative;
+    z-index: 0;
+
+    image {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    table {
+      position:  absolute;
+      top: 0;
+      left: 0;
+      margin: 0;
+      padding: 0;
+      border-spacing: 0;
+      border-collapse: collapse;
+      display: table;
+      table-layout: fixed;
+
+      td {
+        margin: 0;
+        padding: 0;
+        border-spacing: 0;
+        text-align: center;
+        font-size: 75%;
+
+      }
+    }
+  }
+
+  .selected {
+    background-color: rgba(0,255,0,0.3); //translucent green if selected
+  }
+
+  #multi_button {
+
+    font-size: large;
+
+  }
+
+  #batch_menu {
+    //hidden by default, Jquery UI makes it appear when $('#grid).attr('data-multi') == true and > 1 cell is selected
+    display: none;
+
+    //positioning:
+    // Make the batch menu fixed to the right side of the viewport.
+    position: fixed;
+    top: 5%;
+    right: 0%;
+    z-index: 2;
+
+    //border styling:
+    border: 0.5em solid blue;
+    border-radius: 10px;
+
+    //content styling:
+    text-align: center;
+    overflow-y: scroll;
+
+    button {
+      margin: auto;
+      padding: 5%;
+      margin: 5%;
+      border: 2px solid black;
+      border-radius: 10%;
+      width: 75%;
+      height: 20%;
+      background-color: #ffffff;
+      font-size: large;
+      text-align: center;
+    }
+
+    #batch_delete_button {
+      margin-bottom: 20%;
+    }
+
+    #batch_help_button {
+      width: 50%;
+      height: 10%;
+      padding: 5%;
+      margin: 5%;
+    }
+  }
+
+  #pallet_menu {
+    display: none;
+    position: fixed;
+    //width: device specific
+    //height device specific
+    top: 10%;
+    right: 0%;
+    z-index: 3;
+    border: 15px solid blue;
+    border-radius: 5%;
+    background-color: aliceblue;
+
+    button {
+      background-color: white;
+    }
+
+    #pallet_menu_bar {
+
+      #pallet_menu_close_button {
+        height: 150%;
+        width: "auto";
+      }
+    }
+
+
+
+
+    h2 {
+      font-size: x-large;
+      text-align: center;
+    }
+
+    #top_label {
+      position: relative;
+      margin: 0 auto;
+      font-size: 70%;
+    }
+
+    #bottom_label {
+      position: relative;
+      margin: 0 auto;
+      font-size: 70%;
+    }
+
+    #pallet_view_div {
+      position: absolute;
+      left: 0;
+      width: 50%;
+      height: 60%;
+      text-align: center;
+
+      #pallet_view {
+        display: table;
+        height: 75%;
+        width: 100%;
+        border: 3px solid black;
+        background-color: white;
+        text-align: center;
+        margin: 0 auto;
+
+        td {
+          display: table-cell;
+          width: 80%;
+          margin: 0% 10% 0% 10%;
+          font-size: xx-large;
+          font-weight: bold;
+        }
+      }
+
+
+    }
+
+    #pallet_menu_buttons {
+      position: absolute;
+      right: 0;
+      width: 50%;
+      height: 60%;
+      text-align: center;
+
+
+      button {
+        border: 2px solid black;
+        border-radius: 10%;
+        width: 80%;
+        height: 20%;
+        margin-bottom: 5%;
+        font-size: large;
+        font-weight: bold;
+      }
+    }
+
+    #pallet_menu_sub_menu {
+      display: none;
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 4;
+      width: 100%;
+      height: 100%;
+      border: 2px solid black;
+      background-color: inherit;
+
+      #pallet_sub_menu_main_div {
+        position: absolute;
+        width: 98%;
+        height: 75%;
+        padding: 5% 1% 5% 1%;
+
+
+        .sub_menu_input_div {
+          position: relative;
+          height: 33.3%;
+          width: 100%;
+          font-size: 300%;
+          font-weight: bold;
+          text-align: center;
+          vertical-align: middle;
+
+          .label_div {
+            display: table;
+            height: 100%;
+            width: 50%;
+            position: absolute;
+            left: 0;
+            line-height: 1;
+
+            label {
+              display: table-cell;
+              vertical-align: middle;
+            }
+          }
+
+          .input_div {
+            display: table;
+            height: 100%;
+            width: 50%;
+            position: absolute;
+            right: 0;
+
+            input {
+              display: table-cell;
+              vertical-align: bottom;
+              margin: 8%;
+              height: 50%;
+              width: 50%;
+              font-size: 100%;
+            }
+          }
+
+        }
+
+
+        #inner_menu_buttons_div {
+          position: relative;
+          height: 33.33%;
+          width: 100%;
+
+          .button_div {
+            display: table;
+            position: absolute;
+            height: 100%;
+            width: 50%;
+
+            button {
+              display: table-cell;
+              width: 50%;
+              height: 80%;
+              border-radius: 15%;
+              vertical-align: middle;
+              font-size: 250%;
+              font-weight: bold;
+            }
+          }
+
+          #inner_submit_button_div {
+            left: 0;
+
+            #inner_submit_button {
+              margin: 0% 5% 0% 40%;
+            }
+          }
+
+          #inner_cancel_button_div {
+            right: 0;
+
+            #inner_cancel_button {
+              margin: 0% 40% 0% 5%;
+            }
+          }
+        }
+      }
+
+      #inner_menu_help_div {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 20%;
+        font-size: medium;
+        font-weight: bold;
+        text-align: center;
+
+      }
+    }
+
+    #pallet_menu_done_button_div {
+      position: absolute;
+      bottom: 0;
+      height: 15%;
+      width: 100%;
+      text-align: center;
+
+
+      button {
+        border: 2px solid black;
+        border-radius: 10%;
+        width: 40%;
+        height: 90%;
+        font-size: large;
+        font-weight: bold;
+      }
+
+    }
+
+
+  }
+
+  #mask_layer { //
+    display:none;
+    position:fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; //above everything except the pallet menu.
+    background-color: gray;
+    opacity: 0.3;
+
+  }
+
+
+  /* iPad Mini, iPad 2, and smart phones with equal or lesser resolution */
+  @media (max-width: 1024px) {
+
+
+
+     button,input {
+       //get rid of annoying default iOS Safari border radius
+       -webkit-appearance: none;
+       -webkit-border-radius: 0;
+       border-radius: 0;
+     }
+
+
+     #multi_button {
+       position: fixed;
+       display: block;
+       z-index: 1;
+       bottom: 1%;
+       right: 1%;
+       width: 30%;
+       height: 10%;
+       border: 2px solid black;
+       border-radius: 20%;
+       background-color: lightskyblue;
+     }
+
+    #batch_menu {
+
+      width: 20%;
+      height: 50%;
+      background-color: rgba(200,230,255,0.9);
+
+      button {
+
+      }
+
+      #batch_delete_button {
+
+      }
+
+      #batch_delete_button {
+
+      }
+
+      #batch_help_button {
+
+      }
+    }
+
+    #pallet_menu {
+      display: none;
+      width: 80%;
+      height:60%;
+
+      h2 {
+
+      }
+
+      #pallet_menu_bar {
+        height: 10%;
+
+        #pallet_menu_close_button {
+          height: 100%;
+          width: 10%;
+          width: "auto";
+          border: 3px solid black;
+          font-size: x-large;
+          background-color: lightgray;
+        }
+      }
+
+      #top_label {
+
+      }
+
+      #bottom_label {
+
+      }
+
+      #pallet_view_div {
+
+
+        #pallet_view {
+
+        }
+
+        td {
+
+        }
+      }
+
+      #pallet_menu_buttons {
+
+      }
+    }
+  }
+
+  /* Desktop */
+  @media (min-width: 1025px) {
+
+
+    #multi_button {
+      width: 15%;
+      height: 10%;
+      border-radius: 3%;
+      background-color: white;
+
+    }
+
+    #batch_menu {
+
+      button {
+
+      }
+
+      #batch_delete_button {
+
+      }
+
+      #batch_delete_button {
+
+      }
+
+      #batch_help_button {
+
+      }
+    }
+
+    #pallet_menu {
+      display: none;
+      width: 40%;
+      height: 60%;
+
+      h2 {
+
+      }
+
+
+
+      #top_label {
+
+      }
+
+      #bottom_label {
+
+      }
+
+      #pallet_view_div {
+
+
+        #pallet_view {
+
+        }
+
+        td {
+
+        }
+      }
+
+      #pallet_menu_buttons {
+
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+
+

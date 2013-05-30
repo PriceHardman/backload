@@ -5,6 +5,6 @@ class Vessel
   field :name, type: String
   field :_id, type: String, default: -> {name.to_s.parameterize}
 
-  has_many :holds, autosave: true, dependent: :destroy
+  has_many :holds, dependent: :destroy
 
 end

@@ -1,0 +1,2 @@
+module CargoHoldsHelper
+end

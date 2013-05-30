@@ -1,11 +1,13 @@
 <h1><%= "Coastal "+@vessel.name %></h1>
 
+<%= link_to "Back to Vessel List", admin_vessels_path %><br/>
+
 <%= link_to "Add hold", new_admin_vessel_hold_path(@vessel) %><br/>
 
 <% if @vessel.holds %>
     <h3>Holds:</h3>
     <ul>
-      <% @vessel.holds.each do |hold| %>
+      <% @vessel.holds.sort_by{|hold| hold.name}.each do |hold| %>
           <%= link_to hold.name, admin_vessel_hold_path(@vessel,hold) %><br/>
       <% end %>
     </ul>
@@ -14,4 +16,4 @@
 
 
 
-<%= link_to "Back to Vessel List", admin_vessels_path %><br/>
+

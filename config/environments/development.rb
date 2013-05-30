@@ -29,5 +29,5 @@ Backload::Application.configure do
   # Expands the lines which load the assets
   config.assets.debug = false
 
-  config.assets.enable = true
+  #config.assets.enable = true
 end

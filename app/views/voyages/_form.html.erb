@@ -1,0 +1,15 @@
+
+<%= form_for @voyage, remote: true do |f| %>
+    <h2> Creating New Voyage</h2>
+    <%= f.label :vessel %>:
+    <%= f.select :vessel, @vessels.map {|vessel| vessel.name} %><br/>
+
+    <%= f.label :voyage_number %>:
+    <%= f.text_field :voyage_number %><br/>
+
+    <%= f.label "Sailing Date" %>:
+    <%= f.text_field :sailing_date_string %><br/>
+
+    <%= f.submit "Create new voyage", id: "create_new_voyage", disable_with: "Saving..." %>
+    <%= button_tag "Cancel", id: "cancel_new_voyage", type: "button" %>
+<% end %>

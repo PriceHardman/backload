@@ -2,23 +2,12 @@ $('#update_selectable_cells_form').remove();
 $('#edit_selectable_cells_link').show();
 $('#grid').attr('data-action','show');
 
+//update the $hold var with the new data:
+$('#hold_var').html('$hold = <%= raw @hold.to_json %>;');
+
 //unbind the hover and click events for editing the selectable cells:
 $('#grid td').unbind('mouseenter').unbind('mouseleave');
 
 $('#grid td').unbind('click');
 
 $('.hover').removeClass('hover');
-
-
-var updatedHold = gon.watch('hold');
-
-
-//Loop through the td's in the grid, setting their data-selectable attribute to true if that cell is marked as selectable in the database.
-$('#grid td').each( function(index,value) {
-    if(updatedHold.selectable_cells[index].selectable == "true"){
-        $(this).attr("data-selectable","true");
-        $(this).addClass("selected");
-    } else {
-        // do nothing
-    }
-});

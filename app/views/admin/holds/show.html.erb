@@ -1,8 +1,19 @@
 <h1><%= "Coastal #{@vessel.name} #{@hold.name}" %></h1>
 
+<%= javascript_tag id: "hold_var" do %>
+    var $hold = <%= raw @hold.to_json %>;
+<% end %>
+
+<%= link_to "Back to Coastal #{@vessel.name}", admin_vessel_path(@vessel) %><br/>
 <%= link_to "Edit Hold Information", edit_admin_vessel_hold_path(@vessel,@hold) %><br/>
 <%= link_to "Edit Selectable Cells", edit_selectable_cells_admin_vessel_hold_path(@vessel,@hold),
             :remote => true,
             :id => "edit_selectable_cells_link" %><br/>
+<%= link_to 'Delete',
+            admin_vessel_hold_path(@vessel,@hold),
+            method: :delete, data: { confirm: 'Are you sure?' } %></li>
+
+<p><b>The view below is the template used on all load plans for this hold.<br/>
+  Green indicates that the cell can have cargo placed into it.</b></p>
 
 <%= render "shared/hold_grid", :hold => @hold, :vessel => @vessel %>
