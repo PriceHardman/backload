@@ -4,6 +4,30 @@ BACKLOAD.cargo_holds.show = function() {
         //#####################################################################################
         //######################### Set up the grid environment ###############################
         //#####################################################################################
+        var Helpers = (function(){
+
+            function getGridSquare(name) { //return jQuery selector for grid with name passed to input (e.g. "A7").
+                var row = name.match(/[A-Z]/)[0];
+                var column = name.match(/\d+/)[0];
+                return $("#grid td[data-row='"+row+"'][data-column='"+column+"']");
+            }
+
+            function getPalletSquare(name){
+                //return object from $pallet_squares var, find it using $.grep
+
+                var output = $.grep($pallet_squares,function(element,index){
+                    return element.name == name;
+                })[0];
+
+                return output;
+            }
+
+
+            return {
+                getGridSquare: getGridSquare,
+                getPalletSquare: getPalletSquare
+            }
+        })();
 
         var GridBehavior = (function(){ //this module contains the code necessary to set up the grid representing the hold.
 
@@ -46,6 +70,19 @@ BACKLOAD.cargo_holds.show = function() {
                 gridSquare.text(output); //set the td's value to output.
             }
 
+            function populateGridSquaresFromJSVars() {
+                //loop through each element in the $pallet_squares array and populate the values of the cells in the grid
+                //with the data from the pallet objects in each pallet square object
+                $.each($pallet_squares,function(index,value){
+                    var row = value.name.match(/[A-Z]/)[0];
+                    var column = value.name.match(/\d+/)[0];
+                    var $td = Helpers.getGridSquare(row+column);
+
+                    //sync the contents of the cell with the values in the JS var:
+                    GridBehavior.cellContentSync($td,value);
+                });
+            }
+
             function gridSetup() {
                 var $image = $('#grid_background');
 
@@ -69,65 +106,140 @@ BACKLOAD.cargo_holds.show = function() {
                 setCellSelectability();
             }
 
+            function palletMenuVisible() {
+                return $('#pallet_menu').is(":visible");
+            }
+
+            /*
+            function getPalletSquareState() {
+                return $.extend(true,{},$pallet_squares); //return a static deep copy of the $pallet_square var.
+                                                          // see jQuery documentation for details
+            }
+            */
+
+            function getChangedPalletSquares(){
+                //after each pallet operation by the user, this function will run to capture the
+                //changes made by the user to the $pallet_squares var since the last change.
+
+
+
+                //an object containing the added, updated, and deleted collections are returned
+
+                //take the var to which $pallet_squares_static was assigned on page load/update as input.
+                // Compare the pallet arrays in the palletSquare objects in original collection to those currently in $pallet_squares var
+                // Any differences will be copied into a collection and returned.
+
+                var add = []; //holds the palletSquare objects of squares that have had content either added.
+                var update = [];
+                var destroy = [];   //holds the NAMES (e.g. "B7") of palletSquare objects that are now empty,
+                                    // i.e. their contents were batch deleted, or a single pallet deleted such that the square is now empty.
+
+
+                //iterate over the current array of objects, comparing the pallets property with the corresponding original object for equality
+                $.each($pallet_squares, function(index,value){
+                    var original = $pallet_squares_static[index]; //the original state of the palletSquare object at hand
+                    var current = value;
+
+
+                    //There are four possible combinations as far as the pallet collections are concerned:
+                    // both original.pallets and current.pallets are undefined, both are defined, original
+                    // is defined and current is undefined, and vice-versa.
+
+                    // If both are undefined, then the spots haven't been touched. Skip to the next pallet square in order
+                    // to avoid undefined errors.
+
+                    // If original.pallets is undefined and current.pallets is defined, then a pallet was added to a
+                    // previously-empty pallet square. Record this as an added pallet by adding the square object to array "added".
+
+                    // If original.pallets is defined and current.pallets is undefined, this implies the user has deleted
+                    // the contents of the pallet square (either via a batch delete of the entire square, or a single delete of
+                    // a square with only one pallet in it). Record this is a deleted pallet by adding the square object to array "deleted"
+
+                    // If both are defined, then either an update or nothing occurred. Take the pallet arrays of both
+                    // original and current, and JSON.stringify them. Check if they are different. This implies an update.
+
+                    if(original.pallets === undefined && current.pallets === undefined ) {
+                        return true; // skip to the next pallet
+                    }
+
+
+
+                    if( original.pallets === undefined && current.pallets !== undefined) {
+                        add.push(current); //record this as an add.
+                        return true; // move on to the next pallet
+                    }
+
+                    if( original.pallets !== undefined && current.pallets === undefined ) {
+
+                        destroy.push(current);
+                        return true; // move on to the next pallet
+                    }
+
+                    if( original.pallets !== undefined && current.pallets !== undefined ) {
+                        var orig = JSON.stringify(original.pallets);
+                        var curr = JSON.stringify(current.pallets);
+
+
+                        if(original.pallets.length == 0 && current.pallets.length == 0) {
+                            return true; // skip to the next pallet
+                        }
+
+                        if(original.pallets.length == 0 && current.pallets.length > 0) {
+                            add.push(current);
+                            return true;
+                        }
+
+                        if(original.pallets.length > 0 && current.pallets.length == 0) {
+                            destroy.push(current);
+                            return true;
+                        }
+
+
+                        //check for update by comparing the strings.
+                        if(curr !== orig ){
+                            update.push(current);
+                            return true;
+                        }
+                    }
+
+
+
+
+                });
+
+                var results = {add:add,update:update,destroy:destroy};
+
+                //Only one of "add", "update" and "destroy" will have any entries in it.
+                for(var action in results){
+                    if(results[action].length > 0){
+                        return {action: action.toUpperCase(), data: results[action]};
+                        //break;
+                    }
+                }
+            }
+
             return {
                 setCellSelectability: setCellSelectability,
                 gridSetup: gridSetup,
-                cellContentSync: cellContentSync
+                cellContentSync: cellContentSync,
+                populateGridSquaresFromJSVars: populateGridSquaresFromJSVars,
+                palletMenuVisible: palletMenuVisible,
+                getChangedPalletSquares: getChangedPalletSquares
+
             };
         })();
-
-        GridBehavior.gridSetup(); //overlay grid on top of hold picture, set default selectability of cells to true
-
-        //#####################################################################################
-        //####################### Set up the cargo data storage scheme ########################
-        //#####################################################################################
-
-
-        /*
-            The idea is to have each piece of data stored in one -- and only one -- place.
-            On page load, get the $pallet_squares variable and make a copy of it. This copy will
-            be compared on submit with the original variable (which the user will be changing
-            constantly), and only the changed cells will actually be submitted to the server.
-
-
-        */
-            var $pallet_squares_original = $pallet_squares;
-
-
-
-
-
-
-
-        //#####################################################################################
-        //##################### Set up the menus for manipulating cargo #######################
-        //#####################################################################################
-
-
-        //The default behavior for the app is clicking on a pallet square brings up a JQuery UI dialog,
-        // in which the user can see the current contents of the pallet square, and buttons in the dialog
-        // allow the user to add, edit, rearrange, and delete pallets within the square, as well as move
-        // individual pallets to other squares. Clicking the "multi" button at the top of the page will
-        // override this default behavior and allow the user to perform batch operations, such as adding
-        // and deleting pallets from multiple pallet squares. The 'multi' data attribute governs this behavior.
-
-
-
-        function palletMenuVisible() {
-            return $('#pallet_menu').is(":visible");
-        };
-
         
         var SingleModeBehavior = (function(){     //module for single-mode behavior
 
             //setup and behavior
             function palletViewSetup(palletSquare){
-                //Set up in-dialog pallet view:
+                //Set up pallet view:
                 // Delete current contents. We'll be replacing/updating them.
                 // If pallet has no pallets, say so.
                 // Otherwise, get the length of the pallets array (i.e. # of pallets in stack) and make
                 // an (n x 1) table with that many rows, one td per row, with the pallet's detail in the row.
                 // The table will be deleted each time the dialog is closed.
+                // Enable and disable the appropriate action buttons on open
 
                 //delete current contents of pallet view:
                 $('#pallet_view tr').remove();
@@ -148,7 +260,7 @@ BACKLOAD.cargo_holds.show = function() {
                         // since first element is on bottom.
 
                         //make a tr with one td, the contents of which are the pallets destination code and plt #.
-                        $('#pallet_view').append("<tr><td id=\"cell_"+i+"\">"+pallet.dest+" "+pallet.pallet_number+"</td></tr>");
+                        $('#pallet_view').append("<tr><td id=\"cell_"+i+"\" class=\"pallet_view_pallet\">"+pallet.dest+" "+pallet.pallet_number+"</td></tr>");
                         var thisCell = $("#cell_"+i);
 
                     }
@@ -157,7 +269,63 @@ BACKLOAD.cargo_holds.show = function() {
                         //if more than one pallet, give the cells borders to separate them
                         $('#pallet_view td').css("border","2px solid black");
                     }
-                }        
+                }
+
+                palletViewSetPermittedActions(); //// Enable and disable the appropriate action buttons on open
+            }
+            
+            function palletMenuBehavior(){
+                
+            }
+
+            function palletViewPalletClick(){
+                $('.pallet_view_pallet').click(function(event){ //when any pallet td in the pallet view is clicked, referenced by class
+                    var $td = $(event.target); //the pallet that was clicked
+
+                    $td.toggleClass('pallet_view_pallet_selected');
+
+                    //the actions able to be performed on the pallets in the pallet view are dependent on
+                    // how many pallets are selected.
+                    // # of pallets selected: actions permitted
+                    // 0: add
+                    // 1: edit, move delete
+                    // 2+: delete
+                    palletViewSetPermittedActions(); //disables and enables action buttons depending on how many pallets are selected
+
+                });
+            }
+
+            function palletViewSetPermittedActions() {
+                //the actions able to be performed on the pallets in the pallet view are dependent on
+                // how many pallets are selected.
+                // # of pallets selected: actions permitted
+                // 0: add
+                // 1: edit, move delete
+                // 2+: delete
+
+                //disable the edit, move, and delete buttons by default.
+                $.each(['add','edit','move','delete'],function(index,value){
+                    $('#'+value+'_button').attr('disabled',"true");
+                });
+
+                var numberOfPalletsSelected = $('.pallet_view_pallet_selected').length;
+
+                switch (numberOfPalletsSelected) {
+                    case 0: //when no pallets are selected in the pallet view
+                        $('#add_button').removeAttr("disabled");
+                        break;
+                    case 1: //when 1 pallet is selected in the pallet view
+                        $('#add_button').attr('disabled',"true"); //disable add button
+                        $.each(['edit','delete'],function(index,value){ //enable edit move and delete
+                            $('#'+value+'_button').removeAttr("disabled");
+                        });
+                        break;
+                    default: //when 2+ pallets are selected in the pallet view
+                        $('#delete_button').removeAttr("disabled"); //enable delete button
+                        $.each(['add','edit','move'],function(index,value){ //disable add edit and move
+                            $('#'+value+'_button').attr("disabled","true");
+                        });
+                }
             }
 
             function palletSubMenuBehavior(){
@@ -170,20 +338,107 @@ BACKLOAD.cargo_holds.show = function() {
                 // only numbers. Remedy this by only applying the attribute if the user is not on an iPhone
                 if( (/iPhone/i).test(navigator.userAgent) ) {
                    //do nothing
-                } else {
+                }
+                else {
                     $('#destination_code').attr("type","tel");
                     $('#pallet_number').attr("type","tel");
                 }
             }
 
+            function sendOrSavePalletSquare(palletSquare,action){ //sending single-mode actions to server, or persisting client-side if no connectivity
+                //parameters:
+                // palletSquare: The object in $pallet_squares we are sending to the server.
+                // action: The pallet action performed that we are communicating to the server.
+
+                // For action=="ADD":
+                // Take palletSquare object from $pallet_squares that was acted on.
+                // Create an object called data structured like so: {action: action, data: palletSquare}
+                // Create a jQuery AJAX event with the POST action,
+                // and send to the URL /voyages/:voyage_id/cargo_holds/:id/create_pallet, getting the requisite IDs
+                // from the $voyage and $cargo_hold objects in the global namespace.
+                // Upon success, replace the $pallet_squares global var with a version containing the new pallet.
+
+                var ajaxParameters = {};
+                ajaxParameters.appAction = action;
+                ajaxParameters.url = "/voyages/"+$voyage._id+"/cargo_holds/"+$cargo_hold._id+"/";
+
+                switch(action) {
+                    case "ADD":
+                        ajaxParameters.HTTPAction = "POST";
+                        ajaxParameters.url += "add_pallet";
+                        ajaxParameters.palletSquare = palletSquare;
+                        ajax(ajaxParameters);
+                        break;
+                    case "UPDATE":
+                        ajaxParameters.HTTPAction = "PUT";
+                        ajaxParameters.url += "update_pallet";
+                        ajaxParameters.palletSquare = palletSquare;
+                        ajax(ajaxParameters);
+                        break;
+                    case "DESTROY":
+                        ajaxParameters.HTTPAction = "DELETE";
+                        ajaxParameters.url += "destroy_pallet";
+                        ajaxParameters.palletSquare = palletSquare;
+                        ajax(ajaxParameters);
+                        break;
+                    default:
+                    //do nothing
+                }
+
+                function ajax(params) { //function for jquery AJAX call. Passed object containing parameters.
+                    $.ajax({
+                        type: params.HTTPAction,
+                        url: params.url,
+                        data: {appAction: params.appAction, palletSquare: params.palletSquare}
+                    }).success(function(data){
+                            //handled by views/cargo_holds/<action>_pallet.js.erb (e.g. for add, add_pallet.js.erb).
+                        });
+                }
+
+
+            }
+
+            function getIndexOfPalletObjectFromPalletViewCell(palletSquare){
+                //Given a palletSquare object from $pallet_squares. find the table cell highlighted in the pallet view and,
+                // return the pallet object from that palletSquare object's pallets array.
+                // This involves using the index on the table cell's id to return the pallet object at the
+                // same index in the pallet square. (e.g. the td with id="cell_0" will correspond to
+                // PalletSquare.pallets[0]).
+
+                var palletViewCell = $('td.pallet_view_pallet_selected');
+
+                return palletViewCell.attr("id").match(/\d+/)[0];
+            }
+
+            function onSubmit(gridSquare,palletSquare){
+                //This function pools together the actions required every time the user submits data to the server.
+
+                //First, pass the changed palletSquare.pallets object to the appropriate object in $pallet_squares:
+                Helpers.getPalletSquare(palletSquare.name).pallets = palletSquare.pallets;
+
+                //Next, get the changed pallet squares and assign them to a variable:
+                var changedPalletSquares = GridBehavior.getChangedPalletSquares();
+
+                //Submit the changes to the server via ajax:
+                SingleModeBehavior.sendOrSavePalletSquare(changedPalletSquares.data[0],changedPalletSquares.action);
+                //sync the contents of $pallet_squares with the gridSquares
+                GridBehavior.cellContentSync(gridSquare,palletSquare);
+                //Set up the pallet view to contain the data from the appropriate grid square
+                SingleModeBehavior.palletViewSetup(palletSquare);
+                //set up the pallet view to listen for more user actions
+                SingleModeBehavior.palletViewPalletClick();
+            }
+
             //showing events
 
-            function enterPalletMode() {
+            function palletMenuOpen() {
+
                 $('#pallet_menu').stop().toggle("slide",{direction: "right"});
                 $('#mask_layer').show();
             }
 
-            function palletSubMenuOpen(gridSquare) {
+            function palletSubMenuOpen(gridSquare,palletSquare) {
+
                 $('#pallet_menu_sub_menu').show();
                 SingleModeBehavior.palletSubMenuBehavior();
 
@@ -212,8 +467,10 @@ BACKLOAD.cargo_holds.show = function() {
                 palletMenuCloseButtonClick(gridSquare);
                 palletMenuDoneButtonClick(gridSquare);
                 palletMenuAddButtonClick(gridSquare,palletSquare);
-                palletSubMenuSubmitButtonClick(gridSquare,palletSquare);
-
+                palletSubMenuAddActionSubmitButtonClick(gridSquare,palletSquare);
+                palletSubMenuCancelButtonClick(gridSquare);
+                palletViewPalletClick(); //listen to pallet view pallet click on page load
+                palletMenuDeleteButtonClick(gridSquare,palletSquare);
             }
 
             function palletMenuCloseButtonClick(gridSquare){
@@ -230,18 +487,44 @@ BACKLOAD.cargo_holds.show = function() {
 
             function palletMenuAddButtonClick(gridSquare,palletSquare){
 
-                $('#add_button').click(function(){
-                    SingleModeBehavior.palletSubMenuOpen(gridSquare);
+                $('#add_button').unbind("click").bind('click',function(){
+                    SingleModeBehavior.palletSubMenuOpen(gridSquare,palletSquare);
                 });
             }
 
+
+            function palletMenuDeleteButtonClick(gridSquare,palletSquare){
+                $('#delete_button').unbind('click').bind('click',function(event){
+
+                    var indexOfPalletObjectToBeDeleted = SingleModeBehavior.getIndexOfPalletObjectFromPalletViewCell(palletSquare);
+
+                    
+                    //we want to delete the pallet object from the pallet square parent object,
+                    // update the grid contents, update the pallet view, and send the data to the server.
+
+                    palletSquare.pallets.splice(indexOfPalletObjectToBeDeleted,1); //remove the object from the palletSquare parent object in $pallet_squares
+                    SingleModeBehavior.onSubmit(gridSquare,palletSquare);
+
+                    /*
+                    var changedPalletSquares = GridBehavior.getChangedPalletSquares();
+                    SingleModeBehavior.sendOrSavePalletSquare(changedPalletSquares.data[0],changedPalletSquares.action);
+                    GridBehavior.cellContentSync(gridSquare,palletSquare);
+                    SingleModeBehavior.palletViewSetup(palletSquare);
+                    SingleModeBehavior.palletViewPalletClick(); //listen to pallet view pallet click as soon as its created.
+                    */
+
+                    
+                });
+            }
+
+
             //single-mode sub-menu (inner menu) buttons
 
-            function palletSubMenuSubmitButtonClick(gridSquare,palletSquare){
+            function palletSubMenuAddActionSubmitButtonClick(gridSquare,palletSquare){
                 //perform validations (coming soon)
                 //create JS object with information from form
-                //if pallets==undefined create pallets and push object into pallets array,
-                // otherwise just push it (real good).
+                //if pallets==undefined create palletSquare.pallets array and push object into pallets array,
+                // otherwise just push it ("Push it real good!").
                 // if there's a connection to the server, submit the changes since last submit
 
                 $('#inner_submit_button').unbind('click').bind('click',function(){
@@ -252,19 +535,32 @@ BACKLOAD.cargo_holds.show = function() {
 
                     var object = {dest: destination_code, pallet_number: pallet_number};
 
+                    //palletSquare.pallets.push(object);
+
                     if(palletSquare.pallets == undefined ) {   //put the object in the array
                         palletSquare.pallets = [object];
-                    } else {
+                    }
+                    else {
                         palletSquare.pallets.push(object);
                     }
+                    SingleModeBehavior.onSubmit(gridSquare,palletSquare);
+                    SingleModeBehavior.palletSubMenuClose(gridSquare);
+                    /*
+                    Helpers.getPalletSquare(palletSquare.name).pallets = palletSquare.pallets;
 
 
                     //submit it if there's a connection (coming soon)
+                    var changedPalletSquares = GridBehavior.getChangedPalletSquares();
 
+
+
+
+                    SingleModeBehavior.sendOrSavePalletSquare(changedPalletSquares.data[0],changedPalletSquares.action);
                     GridBehavior.cellContentSync(gridSquare,palletSquare);
-                    SingleModeBehavior.palletViewSetup(palletSquare);
-
                     SingleModeBehavior.palletSubMenuClose(gridSquare);
+                    SingleModeBehavior.palletViewSetup(palletSquare);
+                    SingleModeBehavior.palletViewPalletClick(); //listen to pallet view pallet click as soon as its created.
+                    */
                 });
 
             }
@@ -275,12 +571,20 @@ BACKLOAD.cargo_holds.show = function() {
                 });
             }
 
+
+
             return {
                 //setup and behavior
                 palletViewSetup: palletViewSetup,
+                palletMenuBehavior: palletMenuBehavior,
                 palletSubMenuBehavior: palletSubMenuBehavior,
+                palletViewPalletClick: palletViewPalletClick,
+                palletViewSetPermittedActions: palletViewSetPermittedActions,
+                sendOrSavePalletSquare: sendOrSavePalletSquare,
+                getIndexOfPalletObjectFromPalletViewCell: getIndexOfPalletObjectFromPalletViewCell,
+                onSubmit: onSubmit,
                 //showing events:
-                enterPalletMode: enterPalletMode,
+                palletMenuOpen: palletMenuOpen,
                 palletSubMenuOpen: palletSubMenuOpen,
                 //hiding events
                 palletMenuClose: palletMenuClose,
@@ -290,8 +594,9 @@ BACKLOAD.cargo_holds.show = function() {
                 palletMenuCloseButtonClick: palletMenuCloseButtonClick,
                 palletMenuDoneButtonClick: palletMenuDoneButtonClick,
                 palletMenuAddButtonClick: palletMenuAddButtonClick,
+                palletMenuDeleteButtonClick: palletMenuDeleteButtonClick,
                 //single-mode sub-menu (inner menu) buttons:
-                palletSubMenuSubmitButtonClick: palletSubMenuSubmitButtonClick,
+                palletSubMenuAddActionSubmitButtonClick: palletSubMenuAddActionSubmitButtonClick,
                 palletSubMenuCancelButtonClick: palletSubMenuCancelButtonClick
             };
         })();
@@ -342,9 +647,8 @@ BACKLOAD.cargo_holds.show = function() {
             };
         })();
 
-
-
-
+        GridBehavior.gridSetup(); //overlay grid on top of hold picture, set default selectability of cells to true
+        GridBehavior.populateGridSquaresFromJSVars();
 
         //logic for the multi button, which toggles multi-pallet mode (assignment of cargo to multiple squares).
         $('#multi_button').click(function(){
@@ -355,26 +659,20 @@ BACKLOAD.cargo_holds.show = function() {
             }
         });
 
-
             //what happens when a cell in the hold grid is clicked:
         $('#grid td[data-selectable="true"]').click(function(event){
             var $td = $(event.target); //the cell in the table that was clicked
 
-            //the entry in the array of PalletSquare objects corresponding to the cell in the table.
-            var $pallet_square = $.grep($pallet_squares,
-                function(value,index){
-                    //find the entry in $pallet_squares by grid name
-                    return value.name == ($td.data('row')+$td.data('column'));
-                })[0]; //grep returns an array, so get the element in the array via [0].
-
+            var $pallet_square = Helpers.getPalletSquare($td.data('row')+$td.data('column'));
             $(this).toggleClass('selected');
 
 
             if( MultiModeBehavior.inMultiMode() ) { //functionality for multi-pallet mode
                 $('#batch_menu').stop().show("slide",{direction: "right"});
-            } else {  //functionality for single-pallet mode
+            }
+            else {  //functionality for single-pallet mode
                 SingleModeBehavior.palletViewSetup($pallet_square); //set up the pallet view
-                SingleModeBehavior.enterPalletMode();
+                SingleModeBehavior.palletMenuOpen(true);
                 SingleModeBehavior.singleModeButtonsEvents($td,$pallet_square); //all single-mode button events
 
             };

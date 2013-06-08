@@ -155,6 +155,10 @@ body[data-controller="cargo_holds"] {
           font-size: xx-large;
           font-weight: bold;
         }
+
+        .pallet_view_pallet_selected {
+          background-color: lightskyblue;
+        }
       }
 
 
@@ -177,6 +181,8 @@ body[data-controller="cargo_holds"] {
         font-size: large;
         font-weight: bold;
       }
+
+
     }
 
     #pallet_menu_sub_menu {

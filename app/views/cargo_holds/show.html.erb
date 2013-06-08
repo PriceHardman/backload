@@ -1,11 +1,18 @@
 <h1><%= "Coastal #{@voyage.vessel} #{@voyage.voyage_number} #{@cargo_hold.name} "%></h1>
 
 <%= javascript_tag id: "hold_var" do %>
-    var $hold = <%= raw @hold_template.to_json %>;
+     var $hold = <%= raw @hold_template.to_json %>;
 <% end %>
 
 <%= javascript_tag id: "pallet_squares_var" do %>
-    var $pallet_squares = <%= raw @cargo_hold.pallet_squares.to_json %>;
+    var $test = 0;
+     var $pallet_squares_static = <%= raw @cargo_hold.pallet_squares.to_json(methods: :dest, :except => [:destination_code, :consignee_code]) %>;
+     var $pallet_squares = <%= raw @cargo_hold.pallet_squares.to_json(methods: :dest, :except => [:destination_code, :consignee_code]) %>;
+<% end %>
+
+<%= javascript_tag id: "voyage_cargo_hold_var" do %>
+     var $voyage = <%= raw @voyage.to_json %>;
+     var $cargo_hold = <%= raw @cargo_hold.to_json %>;
 <% end %>
 
 <div id="pallet_menu">
@@ -24,8 +31,10 @@
   <div id="pallet_menu_buttons">
     <h2>Available Options:</h2>
     <button id="add_button">Add</button>
+    <button id="edit_button">Edit</button>
     <button id="move_button">Move</button>
-    <button id="delete_button">Delete</button>
+    <%= button_tag "Delete", :confirm => "Are you sure you want to delete this pallet?", :id => "delete_button" %>
+    <div id="button_notice"><p>Activate edit/move/delete buttons by selecting a pallet at left</p></div>
   </div>
 
   <div id=pallet_menu_sub_menu>

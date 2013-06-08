@@ -1,0 +1,4 @@
+You might be thinking to yourself "What's all this common.js and js_setup.js business!?!?"
+
+The design of this app's JavaScript files was refactored from the Rails standard to what has been occasionally called
+ the "Garber-Irish" method (read here: http://viget.com/inspire/extending-paul-irishs-comprehensive-dom-ready-execution ).

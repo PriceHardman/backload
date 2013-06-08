@@ -4,7 +4,11 @@ Backload::Application.routes.draw do
 
   resources :voyages do
     resources :cargo_holds do
-
+      member do
+        post 'add_pallet'
+        put 'update_pallet'
+        delete 'destroy_pallet'
+      end
     end
   end
 
