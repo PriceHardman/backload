@@ -3,6 +3,6 @@ class SelectableCell
   field :name, type: String
   field :selectable, type: String
 
-  embedded_in :hold_template
+  embedded_in :hold
 
 end

@@ -1,17 +1,8 @@
-/*
-console.log("Old static "+JSON.stringify($.grep($pallet_squares_static,function(value,index){
-    return value.name=="B7";
-})[0].pallets));
-*/
+
 
 var $pallet_squares = <%= raw @cargo_hold.pallet_squares.to_json(methods: :dest, :except => [:destination_code, :consignee_code]) %>;
 var $pallet_squares_static = <%= raw @cargo_hold.pallet_squares.to_json(methods: :dest, :except => [:destination_code, :consignee_code]) %>;
 var square = $.grep($pallet_squares,function(value,index){
 	return value.name=="B7"
 })[0];
-/*
-console.log("New Static "+JSON.stringify($.grep($pallet_squares_static,function(value,index){
-    return value.name=="B7";
-})[0].pallets));
-*/
 
