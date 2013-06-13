@@ -139,6 +139,11 @@ body[data-controller="cargo_holds"] {
       height: 60%;
       text-align: center;
 
+      .pallet_view_outline_highlight {
+        outline: 3px solid lightgreen;
+
+      }
+
       #pallet_view {
         display: table;
         height: 75%;
@@ -147,6 +152,8 @@ body[data-controller="cargo_holds"] {
         background-color: white;
         text-align: center;
         margin: 0 auto;
+
+
 
         td {
           display: table-cell;
@@ -182,6 +189,9 @@ body[data-controller="cargo_holds"] {
         font-weight: bold;
       }
 
+      .pallet_menu_button_highlighted {
+        background-color: lightgreen;
+      }
 
     }
 

@@ -14,6 +14,10 @@
 //= require jquery_ujs
 //= require jquery.ui.datepicker
 //= require jquery.ui.dialog
+//= require jquery.ui.sortable
+//= require jquery.ui.widget
+//= require jquery.ui.mouse
 //= require jquery.ui.effect-slide
+//= require jquery.ui.touch-punch
 //= require common.js
 //= require_tree .

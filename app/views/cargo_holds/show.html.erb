@@ -24,16 +24,19 @@
     <h2>Pallets In This Space:</h2>
     <div id="top_label">(Top of stack)</div>
     <table id="pallet_view">
+      <tbody id="pallet_view_table_body">
+
+      </tbody>
     </table>
     <div id="bottom_label">(Bottom of stack)</div>
 
   </div>
   <div id="pallet_menu_buttons">
     <h2>Available Options:</h2>
-    <button id="add_button">Add</button>
-    <button id="edit_button">Edit</button>
-    <button id="move_button">Move</button>
-    <%= button_tag "Delete", :confirm => "Are you sure you want to delete this pallet?", :id => "delete_button" %>
+    <button id="add_button">Add Pallet</button>
+    <button id="edit_button">Edit Pallet</button>
+    <button id="rearrange_button">Rearrange Stack Order</button>
+    <%= button_tag "Delete Pallet", :confirm => "Are you sure you want to delete this pallet?", :id => "delete_button" %>
     <div id="button_notice"><p>Activate edit/move/delete buttons by selecting a pallet at left</p></div>
   </div>
 

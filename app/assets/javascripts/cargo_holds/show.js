@@ -271,18 +271,37 @@ BACKLOAD.cargo_holds.show = function() {
                     }
                 }
 
-                palletViewSetPermittedActions(); //// Enable and disable the appropriate action buttons on open
+                palletViewSetPermittedActions(palletSquare); //// Enable and disable the appropriate action buttons on open
+
+
             }
             
             function palletMenuBehavior(){
                 
             }
 
-            function palletViewPalletClick(){
+            function palletViewPalletClick(palletSquare){
                 $('.pallet_view_pallet').click(function(event){ //when any pallet td in the pallet view is clicked, referenced by class
                     var $td = $(event.target); //the pallet that was clicked
 
-                    $td.toggleClass('pallet_view_pallet_selected');
+                    //only allow for selection if we're not currently rearranging the stack with the rearrange button:
+                    if($('#rearrange_button').hasClass('data-clickedOn')){ //if we're rearranging
+
+                    }
+                    else {
+                        $td.toggleClass('pallet_view_pallet_selected'); //select the pallet and highlight it
+                        palletViewSetPermittedActions(palletSquare); //disables and enables action buttons depending on how many pallets are selected
+
+                        //depending on whether we're selecting or deselecting the pallet, disable or enable
+                        //the rearrange stack button
+                        if($(this).hasClass('pallet_view_pallet_selected')){
+                            $('#rearrange_button').attr("disabled","true");
+                        }
+                        else {
+                            $('#rearrange_button').removeAttr("disabled");
+                        }
+                    }
+
 
                     //the actions able to be performed on the pallets in the pallet view are dependent on
                     // how many pallets are selected.
@@ -290,21 +309,21 @@ BACKLOAD.cargo_holds.show = function() {
                     // 0: add
                     // 1: edit, move delete
                     // 2+: delete
-                    palletViewSetPermittedActions(); //disables and enables action buttons depending on how many pallets are selected
+
 
                 });
             }
 
-            function palletViewSetPermittedActions() {
+            function palletViewSetPermittedActions(palletSquare) {
                 //the actions able to be performed on the pallets in the pallet view are dependent on
                 // how many pallets are selected.
                 // # of pallets selected: actions permitted
                 // 0: add
-                // 1: edit, move delete
+                // 1: edit, delete
                 // 2+: delete
 
                 //disable the edit, move, and delete buttons by default.
-                $.each(['add','edit','move','delete'],function(index,value){
+                $.each(['add','edit','rearrange','delete'],function(index,value){
                     $('#'+value+'_button').attr('disabled',"true");
                 });
 
@@ -312,20 +331,32 @@ BACKLOAD.cargo_holds.show = function() {
 
                 switch (numberOfPalletsSelected) {
                     case 0: //when no pallets are selected in the pallet view
-                        $('#add_button').removeAttr("disabled");
+                        $('#add_button').removeAttr("disabled"); //enable only the add button
+
+                        //if more than one pallet is in the space, enable rearrange
+
+
                         break;
                     case 1: //when 1 pallet is selected in the pallet view
-                        $('#add_button').attr('disabled',"true"); //disable add button
-                        $.each(['edit','delete'],function(index,value){ //enable edit move and delete
+                        $.each(['edit','delete'],function(index,value){ //enable edit and delete
                             $('#'+value+'_button').removeAttr("disabled");
                         });
                         break;
                     default: //when 2+ pallets are selected in the pallet view
-                        $('#delete_button').removeAttr("disabled"); //enable delete button
-                        $.each(['add','edit','move'],function(index,value){ //disable add edit and move
-                            $('#'+value+'_button').attr("disabled","true");
-                        });
+                        $('#delete_button').removeAttr("disabled");
                 }
+
+                if(palletSquare.pallets == undefined) { //exit function if palletSquare has no pallets,
+                    // to avoid following code throwing error.
+                    return;
+                }
+
+                //if more than one pallet is in the square, enable the rearrange button:
+                if(palletSquare.pallets.length > 1){
+                    $('#rearrange_button').removeAttr("disabled");
+                }
+
+
             }
 
             function palletSubMenuBehavior(){
@@ -410,7 +441,7 @@ BACKLOAD.cargo_holds.show = function() {
                 return palletViewCell.attr("id").match(/\d+/)[0];
             }
 
-            function onSubmit(gridSquare,palletSquare){
+            function doSubmit(gridSquare,palletSquare){
                 //This function pools together the actions required every time the user submits data to the server.
 
                 //First, pass the changed palletSquare.pallets object to the appropriate object in $pallet_squares:
@@ -426,7 +457,63 @@ BACKLOAD.cargo_holds.show = function() {
                 //Set up the pallet view to contain the data from the appropriate grid square
                 SingleModeBehavior.palletViewSetup(palletSquare);
                 //set up the pallet view to listen for more user actions
-                SingleModeBehavior.palletViewPalletClick();
+                SingleModeBehavior.palletViewPalletClick(palletSquare);
+            }
+
+            function doPalletSquareRearrange(gridSquare,palletSquare){
+                //give pallet view class that highlights it:
+                $('#pallet_view').addClass('pallet_view_outline_highlight');
+
+                var onStop = function(e,ui){ //controls actions to be taken when a rearrange is complete (i.e. when the element is released)
+                    // instantiate an empty array
+                    var newPalletOrder = [];
+
+                    //loop through the pallets in the pallet view,
+                    // using the index in their id attributes (e.g. "cell_0", "cell_1", etc)
+                    // put the pallet object at the corresponding index in PalletSquare.pallets
+                    // into the new array.
+
+
+                    $('#pallet_view td').each(function(index,value){
+                        var thisPalletIndex = Number($(value).attr("id").match(/\d+/)[0]);
+                        newPalletOrder.push(palletSquare.pallets[thisPalletIndex]);
+
+                    });
+
+                    //replace palletSquare.pallets with the newly-ordered array
+                    palletSquare.pallets = newPalletOrder;
+                    
+                    
+                    //submit this action to the server (or persist client-side if no connection) as an update
+                    doSubmit(gridSquare,palletSquare);
+
+                    cancelPalletSquareRearrange(gridSquare,palletSquare);
+
+                    $('#rearrange_button').removeClass("data-clickedOn");
+
+                };
+
+                //make pallet view sortable:
+                $('#pallet_view_table_body').sortable({
+                    stop: onStop
+                });
+                $('#pallet_view_table_body').sortable("enable");
+            }
+
+            function cancelPalletSquareRearrange(gridSquare,palletSquare){
+                //remove the pallet view class that highlights it:
+                $('#pallet_view').removeClass('pallet_view_outline_highlight');
+
+                //disable sortable functionality on pallet view
+                $('#pallet_view_table_body').sortable("disable");
+                $('#pallet_view_table_body').removeClass("ui-sortable");
+                $('#pallet_view_table_body').removeClass("ui-sortable-disabled");
+
+                //un-highlight the rearrange button
+                $('#rearrange_button').removeClass("pallet_menu_button_highlighted");
+
+                //re-enable the add button
+                $('#add_button').removeAttr("disabled");
             }
 
             //showing events
@@ -467,10 +554,11 @@ BACKLOAD.cargo_holds.show = function() {
                 palletMenuCloseButtonClick(gridSquare);
                 palletMenuDoneButtonClick(gridSquare);
                 palletMenuAddButtonClick(gridSquare,palletSquare);
-                palletSubMenuAddActionSubmitButtonClick(gridSquare,palletSquare);
+                palletSubMenuAddActidoSubmitButtonClick(gridSquare,palletSquare);
                 palletSubMenuCancelButtonClick(gridSquare);
-                palletViewPalletClick(); //listen to pallet view pallet click on page load
+                palletViewPalletClick(palletSquare); //listen to pallet view pallet click on page load
                 palletMenuDeleteButtonClick(gridSquare,palletSquare);
+                palletMenuRearrangeButtonClick(gridSquare,palletSquare);
             }
 
             function palletMenuCloseButtonClick(gridSquare){
@@ -492,18 +580,17 @@ BACKLOAD.cargo_holds.show = function() {
                 });
             }
 
-
             function palletMenuDeleteButtonClick(gridSquare,palletSquare){
                 $('#delete_button').unbind('click').bind('click',function(event){
 
                     var indexOfPalletObjectToBeDeleted = SingleModeBehavior.getIndexOfPalletObjectFromPalletViewCell(palletSquare);
 
-                    
+
                     //we want to delete the pallet object from the pallet square parent object,
                     // update the grid contents, update the pallet view, and send the data to the server.
 
                     palletSquare.pallets.splice(indexOfPalletObjectToBeDeleted,1); //remove the object from the palletSquare parent object in $pallet_squares
-                    SingleModeBehavior.onSubmit(gridSquare,palletSquare);
+                    SingleModeBehavior.doSubmit(gridSquare,palletSquare);
 
                     /*
                     var changedPalletSquares = GridBehavior.getChangedPalletSquares();
@@ -513,14 +600,36 @@ BACKLOAD.cargo_holds.show = function() {
                     SingleModeBehavior.palletViewPalletClick(); //listen to pallet view pallet click as soon as its created.
                     */
 
-                    
+
                 });
             }
 
+            function palletMenuRearrangeButtonClick(gridSquare,palletSquare){
+                $('#rearrange_button').unbind("click").bind("click",function(event){
+                    $(this).toggleClass("data-clickedOn");
+
+                    if($(this).hasClass("data-clickedOn")){ // behavior for enabling the rearrange action
+                        //disable the add button
+                        $('#add_button').attr("disabled","true");
+
+
+                        //highlight the rearrange button
+                        $(this).addClass("pallet_menu_button_highlighted");
+
+                        doPalletSquareRearrange(gridSquare,palletSquare);
+                    }
+                    else {                                  //behavior for disabling the rearrange action
+
+                        cancelPalletSquareRearrange(gridSquare,palletSquare);
+
+
+                    }
+                });
+            }
 
             //single-mode sub-menu (inner menu) buttons
 
-            function palletSubMenuAddActionSubmitButtonClick(gridSquare,palletSquare){
+            function palletSubMenuAddActidoSubmitButtonClick(gridSquare,palletSquare){
                 //perform validations (coming soon)
                 //create JS object with information from form
                 //if pallets==undefined create palletSquare.pallets array and push object into pallets array,
@@ -543,7 +652,7 @@ BACKLOAD.cargo_holds.show = function() {
                     else {
                         palletSquare.pallets.push(object);
                     }
-                    SingleModeBehavior.onSubmit(gridSquare,palletSquare);
+                    SingleModeBehavior.doSubmit(gridSquare,palletSquare);
                     SingleModeBehavior.palletSubMenuClose(gridSquare);
                     /*
                     Helpers.getPalletSquare(palletSquare.name).pallets = palletSquare.pallets;
@@ -582,7 +691,9 @@ BACKLOAD.cargo_holds.show = function() {
                 palletViewSetPermittedActions: palletViewSetPermittedActions,
                 sendOrSavePalletSquare: sendOrSavePalletSquare,
                 getIndexOfPalletObjectFromPalletViewCell: getIndexOfPalletObjectFromPalletViewCell,
-                onSubmit: onSubmit,
+                doSubmit: doSubmit,
+                doPalletSquareRearrange: doPalletSquareRearrange,
+                cancelPalletSquareRearrange: cancelPalletSquareRearrange,
                 //showing events:
                 palletMenuOpen: palletMenuOpen,
                 palletSubMenuOpen: palletSubMenuOpen,
@@ -595,8 +706,9 @@ BACKLOAD.cargo_holds.show = function() {
                 palletMenuDoneButtonClick: palletMenuDoneButtonClick,
                 palletMenuAddButtonClick: palletMenuAddButtonClick,
                 palletMenuDeleteButtonClick: palletMenuDeleteButtonClick,
+                palletMenuRearrangeButtonClick: palletMenuRearrangeButtonClick,
                 //single-mode sub-menu (inner menu) buttons:
-                palletSubMenuAddActionSubmitButtonClick: palletSubMenuAddActionSubmitButtonClick,
+                palletSubMenuAddActidoSubmitButtonClick: palletSubMenuAddActidoSubmitButtonClick,
                 palletSubMenuCancelButtonClick: palletSubMenuCancelButtonClick
             };
         })();
