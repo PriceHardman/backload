@@ -17,9 +17,6 @@ class CargoHoldsController < ApplicationController
       @new_pallets << Pallet.new(dest: value[:dest], pallet_number: value[:pallet_number])
     end
     @pallet_square.pallets.push(@new_pallets)
-
-
-
   end
 
   def update_pallet
@@ -33,8 +30,6 @@ class CargoHoldsController < ApplicationController
       @new_pallets << Pallet.new(dest: value[:dest], pallet_number: value[:pallet_number])
     end
     @pallet_square.pallets.push(@new_pallets)
-
-
   end
 
   def destroy_pallet
@@ -43,6 +38,5 @@ class CargoHoldsController < ApplicationController
     @pallet_square = @cargo_hold.pallet_squares.find(params[:palletSquare][:_id])
 
     @pallet_square.pallets.clear
-
   end
 end
