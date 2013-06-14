@@ -121,6 +121,13 @@ BACKLOAD.cargo_holds.show = function() {
                 //after each pallet operation by the user, this function will run to capture the
                 //changes made by the user to the $pallet_squares var since the last change.
 
+                var b7_old = $.grep($pallet_squares_static,function(value,index){
+                    return value.name == "B7";
+                })[0];
+                var b7_new = $.grep($pallet_squares,function(value,index){
+                    return value.name == "B7";
+                })[0];
+
 
 
                 //an object containing the added, updated, and deleted collections are returned
@@ -209,6 +216,7 @@ BACKLOAD.cargo_holds.show = function() {
 
                 var results = {add:add,update:update,destroy:destroy};
 
+
                 //Only one of "add", "update" and "destroy" will have any entries in it.
                 for(var action in results){
                     if(results[action].length > 0){
@@ -241,6 +249,8 @@ BACKLOAD.cargo_holds.show = function() {
                 // The table will be deleted each time the dialog is closed.
                 // Enable and disable the appropriate action buttons on open
 
+
+
                 //delete current contents of pallet view:
                 $('#pallet_view tr').remove();
 
@@ -260,7 +270,7 @@ BACKLOAD.cargo_holds.show = function() {
                         // since first element is on bottom.
 
                         //make a tr with one td, the contents of which are the pallets destination code and plt #.
-                        $('#pallet_view').append("<tr><td id=\"cell_"+i+"\" class=\"pallet_view_pallet\">"+pallet.dest+" "+pallet.pallet_number+"</td></tr>");
+                        $('#pallet_view').append("<tr><td id=\"cell_"+(n-i-1)+"\" class=\"pallet_view_pallet\">"+pallet.dest+" "+pallet.pallet_number+"</td></tr>");
                         var thisCell = $("#cell_"+i);
 
                     }
@@ -480,8 +490,9 @@ BACKLOAD.cargo_holds.show = function() {
 
                     });
 
-                    //replace palletSquare.pallets with the newly-ordered array
-                    palletSquare.pallets = newPalletOrder;
+                    //replace palletSquare.pallets with the newly-ordered array.
+                    //reverse the array, because the first element in the array should be the bottom of the stack.
+                    palletSquare.pallets = newPalletOrder.reverse();
                     
                     
                     //submit this action to the server (or persist client-side if no connection) as an update
@@ -524,9 +535,34 @@ BACKLOAD.cargo_holds.show = function() {
                 $('#mask_layer').show();
             }
 
-            function palletSubMenuOpen(gridSquare,palletSquare) {
+            function palletSubMenuOpen(gridSquare,palletSquare, action) {
+
+                $("#pallet_menu_sub_menu").attr("data-action",action); //add data attr telling which action is to be done.
 
                 $('#pallet_menu_sub_menu').show();
+
+                //the look and behavior of the sub menu depends upon whether we're adding a new pallet or editing an
+                // existing one. We'll check for which action is being done, and set the proper behavior:
+                switch($('#pallet_menu_sub_menu').attr("data-action")) {
+                    case "add":
+                        //nothing needs to be done. The menu is opened and the event listener for the submit button is set.
+                        palletSubMenuAddActionSubmitButtonClick(gridSquare,palletSquare);
+                        break;
+                    case "edit":
+                        //get the pallet object from palletSquare.pallets that was highlighted
+                        var indexOfPallet = Number($('#pallet_view td.pallet_view_pallet_selected').attr("id").match(/\d+/)[0]);
+                        var pallet = palletSquare.pallets[indexOfPallet];
+
+                        //next, populate the input fields on the sub-menu with the current values for the pallet:
+                        $('#destination_code').val(pallet.dest);
+                        $('#pallet_number').val(pallet.pallet_number);
+
+                        palletSubMenuEditActionSubmitButtonClick(gridSquare,palletSquare,pallet);
+                        break;
+                    default:
+                        //do nothing
+                }
+
                 SingleModeBehavior.palletSubMenuBehavior();
 
             }
@@ -539,11 +575,13 @@ BACKLOAD.cargo_holds.show = function() {
                 gridSquare.removeClass("selected");
                 $('#pallet_view tr').remove(); //clear the pallet view in the menu.
                 $('#pallet_menu').removeAttr("style"); //fix apparent bug in JQueryUI.effect.slide
+
             }
 
             function palletSubMenuClose(gridSquare) {
                 $('#pallet_menu_sub_menu input').val(""); //reset the input fields to blank
                 $('#pallet_menu_sub_menu').hide(); //close the menu
+                $('#pallet_menu_sub_menu').removeAttr("data-action"); //remove the attr telling which action was done.
 
             }
 
@@ -554,7 +592,7 @@ BACKLOAD.cargo_holds.show = function() {
                 palletMenuCloseButtonClick(gridSquare);
                 palletMenuDoneButtonClick(gridSquare);
                 palletMenuAddButtonClick(gridSquare,palletSquare);
-                palletSubMenuAddActidoSubmitButtonClick(gridSquare,palletSquare);
+                palletMenuEditButtonClick(gridSquare,palletSquare);
                 palletSubMenuCancelButtonClick(gridSquare);
                 palletViewPalletClick(palletSquare); //listen to pallet view pallet click on page load
                 palletMenuDeleteButtonClick(gridSquare,palletSquare);
@@ -576,7 +614,13 @@ BACKLOAD.cargo_holds.show = function() {
             function palletMenuAddButtonClick(gridSquare,palletSquare){
 
                 $('#add_button').unbind("click").bind('click',function(){
-                    SingleModeBehavior.palletSubMenuOpen(gridSquare,palletSquare);
+                    SingleModeBehavior.palletSubMenuOpen(gridSquare,palletSquare, "add");
+                });
+            }
+
+            function palletMenuEditButtonClick(gridSquare,palletSquare){
+                $('#edit_button').unbind("click").bind("click",function(){
+                    SingleModeBehavior.palletSubMenuOpen(gridSquare,palletSquare, "edit");
                 });
             }
 
@@ -629,7 +673,7 @@ BACKLOAD.cargo_holds.show = function() {
 
             //single-mode sub-menu (inner menu) buttons
 
-            function palletSubMenuAddActidoSubmitButtonClick(gridSquare,palletSquare){
+            function palletSubMenuAddActionSubmitButtonClick(gridSquare,palletSquare){
                 //perform validations (coming soon)
                 //create JS object with information from form
                 //if pallets==undefined create palletSquare.pallets array and push object into pallets array,
@@ -674,8 +718,22 @@ BACKLOAD.cargo_holds.show = function() {
 
             }
 
+            function palletSubMenuEditActionSubmitButtonClick(gridSquare,palletSquare, pallet){
+                $('#inner_submit_button').unbind('click').bind('click',function(){
+                    var destination_code = $('#destination_code').val().toUpperCase();
+                    var pallet_number = $('#pallet_number').val().toUpperCase();
+
+                    //update the dest and plt# values in palletSquare
+                    pallet.dest = destination_code;
+                    pallet.pallet_number = pallet_number;
+
+                    SingleModeBehavior.doSubmit(gridSquare,palletSquare);
+                    SingleModeBehavior.palletSubMenuClose(gridSquare);
+                });
+            }
+
             function palletSubMenuCancelButtonClick(gridSquare){
-                $('#inner_cancel_button').click(function(){
+                $('#inner_cancel_button').unbind("click").bind("click",function(){
                     SingleModeBehavior.palletSubMenuClose(gridSquare);
                 });
             }
@@ -705,10 +763,12 @@ BACKLOAD.cargo_holds.show = function() {
                 palletMenuCloseButtonClick: palletMenuCloseButtonClick,
                 palletMenuDoneButtonClick: palletMenuDoneButtonClick,
                 palletMenuAddButtonClick: palletMenuAddButtonClick,
+                palletMenuEditButtonClick: palletMenuEditButtonClick,
                 palletMenuDeleteButtonClick: palletMenuDeleteButtonClick,
                 palletMenuRearrangeButtonClick: palletMenuRearrangeButtonClick,
                 //single-mode sub-menu (inner menu) buttons:
-                palletSubMenuAddActidoSubmitButtonClick: palletSubMenuAddActidoSubmitButtonClick,
+                palletSubMenuAddActionSubmitButtonClick: palletSubMenuAddActionSubmitButtonClick,
+                palletSubMenuEditActionSubmitButtonClick: palletSubMenuEditActionSubmitButtonClick,
                 palletSubMenuCancelButtonClick: palletSubMenuCancelButtonClick
             };
         })();
